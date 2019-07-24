@@ -1,0 +1,14 @@
+{
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.formatOnSave": true
+  },
+  "files.exclude": {
+    "*/es": true,
+    "*/lib": true,
+    "*/build": true
+  },
+  "javascript.implicitProjectConfig.experimentalDecorators": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
+}
