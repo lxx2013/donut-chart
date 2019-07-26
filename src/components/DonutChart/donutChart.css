@@ -1,0 +1,14 @@
+#donut-chart-wrapper {
+  position: relative;
+  background: #eee;
+}
+#donut-chart-canvas,
+#donut-chart-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#donut-chart-tooltip {
+  transition: opacity 1s ease;
+}
