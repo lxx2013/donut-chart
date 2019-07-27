@@ -28,6 +28,8 @@ export default class donutChartWithCanvas {
   /** 存放圆弧绘制数据的数组 */
   private _arcArray: Array<{ startAngle: number; endAngle: number }> = [];
   private SPECIAL_ANGLE: number;
+  private originX: number; //圆心坐标
+  private originY: number; //圆心坐标
 
   constructor(canvasId: string, option: Partial<typeof defaultOption>) {
     const canvas = (this.canvas = document.getElementById(canvasId) as HTMLCanvasElement);
@@ -41,7 +43,7 @@ export default class donutChartWithCanvas {
     [canvas.width, canvas.height] = [width * this.rate, height * this.rate];
     ctx.scale(this.rate, this.rate);
     //移动坐标系, 使得圆心在中间, 角度0从12点钟方向开始(逆时针)
-    ctx.translate(this.option.originXpercent * width, this.option.originYpercent * height);
+    ctx.translate(this.originX = this.option.originXpercent * width, this.originY = this.option.originYpercent * height);
     ctx.rotate(aToR(ROTATE_ANGLE));
     this.SPECIAL_ANGLE = 0;
     //若颜色设置不恰当则打印警告
@@ -73,7 +75,6 @@ export default class donutChartWithCanvas {
        * 因此这个"削减量"要由长圆弧们共享, 而区分一段圆弧是长圆弧还是短圆弧, 需要根据圆的"半径"和"线宽"计算出一个临界值
        */
       this.SPECIAL_ANGLE = rToA(Math.atan(this.option.lineWidth / 2 / this.option.radius));
-      console.log(this.SPECIAL_ANGLE);
       const LIMIT_ANGLE = 2 * this.SPECIAL_ANGLE;
       const totalAngleNeedToCut = this.option.values.length * 2 * this.SPECIAL_ANGLE;
       const ArcsNeedToCut = this.option.values.filter(value => value * 360 > LIMIT_ANGLE);
@@ -95,7 +96,7 @@ export default class donutChartWithCanvas {
       throw new Error('lineCap 类型错误:' + this.option.lineCap)
     }
 
-    console.log(this._arcArray);
+    console.log('_arcArray', this._arcArray);
     //初始绘制
     this.render();
 
@@ -171,6 +172,17 @@ export default class donutChartWithCanvas {
         this.hoverIndex === index ? this.option.highlightColors[index] : this.option.colors[index]
       );
     });
+  }
+  public getLabelPositions() {
+    const { option, originX, originY } = this
+    const line = option.radius + option.lineWidth / 2
+    return this._arcArray.map(item => {
+      const midAngle = (angleNormalize(item.startAngle) + angleNormalize(item.endAngle)) / 2
+      const midRadian = aToR(midAngle)
+      const x = originX + line * Math.sin(midRadian)
+      const y = originY - line * Math.cos(midRadian)
+      return { x, y, angle: midAngle }
+    })
   }
 }
 

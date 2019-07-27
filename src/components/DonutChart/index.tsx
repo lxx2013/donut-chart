@@ -29,12 +29,17 @@ export default class DonutChart extends React.Component<Props> {
     height: 600,
     values: [0.33, 0.33, 0.33],
     colors: ['#4f83f7', '#ec4944', '#52b49c'],
-    lineCap: 'round'
+    lineCap: 'round',
+    labels: Object.keys(Array.from({ length: 8 })).map(x => 'l' + x)
   };
   /** 鼠标 hover 在其上的圆环的序号 */
   private hoverIndex: number = -1;
   public get renderLabels() {
-    return (this.props.labels || []).map(label => <div className="donut-chart-label">{label}</div>);
+    return (this.props.labels || []).map((label, index) => (
+      <div className="donut-chart-label" key={index}>
+        {label}
+      </div>
+    ));
   }
   public get renderTooltip() {
     return (this.props.tooltips || [])[this.hoverIndex];
@@ -54,10 +59,9 @@ export default class DonutChart extends React.Component<Props> {
     );
   }
   public componentDidMount() {
-    const values = [0.4, 0.3, 0.2, 0.05, 0.03, 0.01, 0.0099, 0.0001];
     var donut = new donutChartWithCanvas('donut-chart-canvas', {
-      values,
-      lineCap: 'round'
+      values: this.props.values,
+      lineCap: this.props.lineCap
     });
     let self = this;
     const tooltipDiv = document.getElementById('donut-chart-tooltip') as HTMLElement;
@@ -72,13 +76,27 @@ export default class DonutChart extends React.Component<Props> {
           self.hoverIndex = hoverIndex;
           tooltipDiv.style.opacity = '1';
           ReactDOM.render(
-            <span>{values[hoverIndex] * 100 + '%'}</span> || self.renderTooltip,
+            <span>{self.props.values[hoverIndex] * 100 + '%'}</span> || self.renderTooltip,
             document.getElementById('donut-chart-tooltip-content')
           );
         }
       } else {
         tooltipDiv.style.opacity = '0';
         self.hoverIndex = -1;
+      }
+    });
+    this.setLabelPostion(donut.getLabelPositions());
+  }
+  public setLabelPostion(positions: Array<{ x: number; y: number; angle: number }>) {
+    console.log(positions);
+    const labels = document.querySelectorAll('.donut-chart-label');
+    positions.forEach(({ x, y, angle }, index) => {
+      if (labels[index]) {
+        if (angle > 180) {
+          x = x - labels[index].clientWidth;
+        }
+        y = y - labels[index].clientHeight / 2;
+        (labels[index] as HTMLElement).style.transform = `translate(${x}px,${y}px)`;
       }
     });
   }
