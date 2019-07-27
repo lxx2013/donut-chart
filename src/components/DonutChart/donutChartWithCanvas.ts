@@ -2,12 +2,12 @@ const defaultOption = {
   originXpercent: 0.5,
   originYpercent: 0.5,
   radius: 200,
-  lineWidth: 10,
+  lineWidth: 25,
   stokeStyle: '#ccc',
   values: [0.4, 0.3, 0.2, 0.09, 0.01],
   colors: ['rgb(69,121,207)', 'rgb(196,73,68)', 'rgb(82,160,156)', '#ff0000', '#00ff00', '#0000ff'], //这一组颜色是在下面的基础上让主色-20或-40得到的
   highlightColors: ['rgb(99,151,247)', 'rgb(236,73,68)', 'rgb(82,180,156)'], //这一组颜色是取色器在设计图上取色得到的
-  capType: 'round' || 'butt' || 'square'
+  lineCap: 'round' || 'butt'
 };
 
 const ROTATE_ANGLE = -90; //将坐标系逆时针旋转90度以使得后续坐标系以12点方向为起点
@@ -27,6 +27,7 @@ export default class donutChartWithCanvas {
   public rate: number;
   /** 存放圆弧绘制数据的数组 */
   private _arcArray: Array<{ startAngle: number; endAngle: number }> = [];
+  private SPECIAL_ANGLE: number;
 
   constructor(canvasId: string, option: Partial<typeof defaultOption>) {
     const canvas = (this.canvas = document.getElementById(canvasId) as HTMLCanvasElement);
@@ -42,28 +43,56 @@ export default class donutChartWithCanvas {
     //移动坐标系, 使得圆心在中间, 角度0从12点钟方向开始(逆时针)
     ctx.translate(this.option.originXpercent * width, this.option.originYpercent * height);
     ctx.rotate(aToR(ROTATE_ANGLE));
+    this.SPECIAL_ANGLE = 0;
+    //若颜色设置不恰当则打印警告
+    const { values, colors, highlightColors } = this.option;
+    if (values.length !== colors.length || values.length !== highlightColors.length) {
+      console.warn('圆环图输入的数据数量和颜色数量不一致,请检查(默认渲染随机颜色)');
+    }
   }
 
   public init(dom: HTMLElement, callback: (x: number, y: number, hoverInde: number) => void) {
     if (callback && typeof callback !== 'function') {
       throw new Error('[donutChartWithCanvas] init() 第一个参数必须是函数或 undefined!');
     }
+    //如果 lineCap 是 'butt' 则无须计算圆弧边缘圆角相切
+    if (this.option.lineCap === 'butt') {
+      let _lastAngel = START_ANGLE;
+      this.option.values.forEach((value, index) => {
+        let endAngle = _lastAngel - value * 360; //用减法来逆时针旋转
+        this._arcArray[index] = {
+          startAngle: _lastAngel,
+          endAngle
+        };
+        _lastAngel = endAngle;
+      });
+    } else {
+      /* 计算临界角度, 低于这个角度的圆弧将不会参与"长度修正量分配"
+       * 所谓"长度修正量分配", 来源是: 一段圆角圆弧的实际长度 = 原长度+2*圆角半径, 这样会导致几个圆弧相切时, 总长度大于圆的周长
+       * 一个直观的做法是让每个圆弧的"原长度"缩减"2*圆角半径", 这样对长圆弧很有效, 但数据极小(显示接近正圆)无法再"削减自身长度"了
+       * 因此这个"削减量"要由长圆弧们共享, 而区分一段圆弧是长圆弧还是短圆弧, 需要根据圆的"半径"和"线宽"计算出一个临界值
+       */
+      this.SPECIAL_ANGLE = rToA(Math.atan(this.option.lineWidth / 2 / this.option.radius));
+      console.log(this.SPECIAL_ANGLE);
+      const LIMIT_ANGLE = 2 * this.SPECIAL_ANGLE;
+      const totalAngleNeedToCut = this.option.values.length * 2 * this.SPECIAL_ANGLE;
+      const ArcsNeedToCut = this.option.values.filter(value => value * 360 > LIMIT_ANGLE);
+      const totalValue = ArcsNeedToCut.reduce((a, b) => a + b);
+      //下面开始计算数据填充至 this._arcArray
+      let _lastAngel = START_ANGLE;
+      this.option.values.forEach((value, index) => {
+        let endAngle = _lastAngel - value * 360; //用减法来逆时针旋转
+        if (ArcsNeedToCut.includes(value)) {
+          endAngle = endAngle + (value / totalValue) * totalAngleNeedToCut; //按比例分配"削减量"
+        }
+        this._arcArray[index] = {
+          startAngle: _lastAngel,
+          endAngle
+        };
+        _lastAngel = endAngle - 2 * this.SPECIAL_ANGLE;
+      });
+    }
 
-    //计算特殊角度
-    const specialAngle =
-      (Math.atan(this.option.lineWidth / 2 / this.option.radius) / Math.PI) * 180;
-    console.log(specialAngle);
-
-    //下面开始计算数据填充至 this._arcArray
-    let _lastAngel = START_ANGLE;
-    this.option.values.forEach((value, index) => {
-      let endAngle = _lastAngel - value * 360; //用减法来逆时针旋转 , 再从区间[-720,360)映射至[0,360)区间中
-      this._arcArray[index] = {
-        startAngle: _lastAngel,
-        endAngle: endAngle + 2 * specialAngle
-      };
-      _lastAngel = endAngle;
-    });
     console.log(this._arcArray);
     //初始绘制
     this.render();
@@ -96,7 +125,7 @@ export default class donutChartWithCanvas {
           //计算 hoverIndex 下面用 for 循环是为了能尽早 break
           for (let i = 0; i < this._arcArray.length; i++) {
             const arc = this._arcArray[i];
-            if (isBetween(angle, arc.startAngle, arc.endAngle)) {
+            if (isBetween(angle, arc.startAngle, arc.endAngle, this.SPECIAL_ANGLE)) {
               //发现 angle < endAngle 就可以确定鼠标浮动的 index 了
               if (i !== this.hoverIndex) {
                 //如果 hoverIndex 需要改变,则执行 render
@@ -119,16 +148,13 @@ export default class donutChartWithCanvas {
   public drawArc(startAngle: number, endAngle: number, color: string) {
     const {
       ctx,
-      option: { radius, lineWidth, capType }
+      option: { radius, lineWidth, lineCap }
     } = this;
     ctx.beginPath();
     ctx.arc(0, 0, radius, aToR(startAngle), aToR(endAngle), true /** 逆时针 */);
     ctx.lineWidth = lineWidth;
-    ctx.strokeStyle =
-      color ||
-      console.warn('圆环图输入的数据数量和输入的颜色数量不一致,请检查.默认渲染随机颜色') ||
-      '#' + ((Math.random() * 0xffffff) | 0x100000).toString(16);
-    ctx.lineCap = capType as CanvasLineCap;
+    ctx.strokeStyle = color || '#' + ((Math.random() * 0xffffff) | 0x100000).toString(16);
+    ctx.lineCap = lineCap as CanvasLineCap;
     ctx.stroke();
     ctx.closePath();
   }
@@ -146,20 +172,23 @@ export default class donutChartWithCanvas {
   }
 }
 
-/**
- * angleToRadian
- */
+/** angleToRadian */
 function aToR(angle: number) {
   return (angle / 180) * Math.PI;
+}
+/** radianToAngle */
+function rToA(radian: number) {
+  return (radian / Math.PI) * 180;
 }
 
 /**
  * 判断角度 target 是否在角度 start 和 end 之间, start => end 的方向是逆时针.
  * 传入的 target 如果是顺时针增加的角度值那么当 target > end && target < start 时返回 true
+ * 考虑的圆角的边界范围, 用SPECIAL_ANGLE来校正
  */
-function isBetween(target: number, start: number, end: number) {
-  start = angleNormalize(start);
-  end = angleNormalize(end);
+function isBetween(target: number, start: number, end: number, SPECIAL_ANGLE: number) {
+  start = angleNormalize(start + SPECIAL_ANGLE);
+  end = angleNormalize(end - SPECIAL_ANGLE);
   if (end > start) {
     end = end - 360;
   }

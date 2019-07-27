@@ -1,6 +1,7 @@
 #donut-chart-wrapper {
   position: relative;
   background: #eee;
+  user-select: none;
 }
 #donut-chart-canvas,
 #donut-chart-tooltip {

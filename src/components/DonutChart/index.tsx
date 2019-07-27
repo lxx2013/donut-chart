@@ -17,7 +17,7 @@ interface Props {
   /** 圆弧从大到小显示的颜色, 默认值为蓝红绿 */
   colors?: string[];
   /** 圆弧连接处的样式, 默认值为圆角(round) */
-  lineCap?: 'round' | 'butt' | 'square';
+  lineCap?: 'round' | 'butt';
 }
 
 /**
@@ -33,8 +33,6 @@ export default class DonutChart extends React.Component<Props> {
   };
   /** 鼠标 hover 在其上的圆环的序号 */
   private hoverIndex: number = -1;
-  private toolTipStyle = {};
-
   public get renderLabels() {
     return (this.props.labels || []).map(label => <div className="donut-chart-label">{label}</div>);
   }
@@ -56,8 +54,10 @@ export default class DonutChart extends React.Component<Props> {
     );
   }
   public componentDidMount() {
+    const values = [0.4, 0.3, 0.2, 0.05, 0.03, 0.01, 0.0099, 0.0001];
     var donut = new donutChartWithCanvas('donut-chart-canvas', {
-      values: [0.4, 0.3, 0.2, 0.08, 0.01, 0.01]
+      values,
+      lineCap: 'butt'
     });
     let self = this;
     const tooltipDiv = document.getElementById('donut-chart-tooltip') as HTMLElement;
@@ -72,7 +72,7 @@ export default class DonutChart extends React.Component<Props> {
           self.hoverIndex = hoverIndex;
           tooltipDiv.style.opacity = '1';
           ReactDOM.render(
-            self.renderTooltip,
+            <span>{values[hoverIndex] * 100 + '%'}</span> || self.renderTooltip,
             document.getElementById('donut-chart-tooltip-content')
           );
         }
