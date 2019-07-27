@@ -57,7 +57,7 @@ export default class DonutChart extends React.Component<Props> {
   }
   public componentDidMount() {
     var donut = new donutChartWithCanvas('donut-chart-canvas', {
-      values: [0.4, 0.3, 0.2, 0.08, 0.01, 0.007]
+      values: [0.4, 0.3, 0.2, 0.08, 0.01, 0.01]
     });
     let self = this;
     const tooltipDiv = document.getElementById('donut-chart-tooltip') as HTMLElement;
@@ -68,11 +68,17 @@ export default class DonutChart extends React.Component<Props> {
     ) {
       tooltipDiv.style.transform = `translate(${x}px,${y}px)`;
       if (hoverIndex !== -1) {
-        self.hoverIndex = hoverIndex;
-        tooltipDiv.style.opacity = '1';
-        ReactDOM.render(self.renderTooltip, document.getElementById('donut-chart-tooltip-content'));
+        if (self.hoverIndex !== hoverIndex) {
+          self.hoverIndex = hoverIndex;
+          tooltipDiv.style.opacity = '1';
+          ReactDOM.render(
+            self.renderTooltip,
+            document.getElementById('donut-chart-tooltip-content')
+          );
+        }
       } else {
         tooltipDiv.style.opacity = '0';
+        self.hoverIndex = -1;
       }
     });
   }
