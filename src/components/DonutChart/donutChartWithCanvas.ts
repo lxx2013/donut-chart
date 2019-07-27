@@ -5,8 +5,8 @@ const defaultOption = {
   lineWidth: 25,
   stokeStyle: '#ccc',
   values: [0.4, 0.3, 0.2, 0.09, 0.01],
-  colors: ['rgb(69,121,207)', 'rgb(196,73,68)', 'rgb(82,160,156)', '#ff0000', '#00ff00', '#0000ff'], //这一组颜色是在下面的基础上让主色-20或-40得到的
-  highlightColors: ['rgb(99,151,247)', 'rgb(236,73,68)', 'rgb(82,180,156)'], //这一组颜色是取色器在设计图上取色得到的
+  colors: ['rgb(69,121,207)', 'rgb(196,73,68)', 'rgb(82,160,156)', '#ca8623', '#bda29e', '#546570', '#0000ff', '#52d58d'],
+  highlightColors: ['rgb(99,151,247)', 'rgb(236,73,68)', 'rgb(82,180,156)', '#de9226', '#cfb2a8', '#797b7f'],
   lineCap: 'round' || 'butt'
 };
 
@@ -66,7 +66,7 @@ export default class donutChartWithCanvas {
         };
         _lastAngel = endAngle;
       });
-    } else {
+    } else if (this.option.lineCap === 'round') {
       /* 计算临界角度, 低于这个角度的圆弧将不会参与"长度修正量分配"
        * 所谓"长度修正量分配", 来源是: 一段圆角圆弧的实际长度 = 原长度+2*圆角半径, 这样会导致几个圆弧相切时, 总长度大于圆的周长
        * 一个直观的做法是让每个圆弧的"原长度"缩减"2*圆角半径", 这样对长圆弧很有效, 但数据极小(显示接近正圆)无法再"削减自身长度"了
@@ -91,6 +91,8 @@ export default class donutChartWithCanvas {
         };
         _lastAngel = endAngle - 2 * this.SPECIAL_ANGLE;
       });
+    } else {
+      throw new Error('lineCap 类型错误:' + this.option.lineCap)
     }
 
     console.log(this._arcArray);

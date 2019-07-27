@@ -57,7 +57,7 @@ export default class DonutChart extends React.Component<Props> {
     const values = [0.4, 0.3, 0.2, 0.05, 0.03, 0.01, 0.0099, 0.0001];
     var donut = new donutChartWithCanvas('donut-chart-canvas', {
       values,
-      lineCap: 'butt'
+      lineCap: 'round'
     });
     let self = this;
     const tooltipDiv = document.getElementById('donut-chart-tooltip') as HTMLElement;
