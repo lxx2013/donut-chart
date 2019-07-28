@@ -3,10 +3,11 @@ const defaultOption = {
   originYpercent: 0.5,
   radius: 200,
   lineWidth: 25,
-  stokeStyle: '#ccc',
   values: [0.4, 0.3, 0.2, 0.09, 0.01],
-  colors: ['rgb(69,121,207)', 'rgb(196,73,68)', 'rgb(82,160,156)', '#ca8623', '#bda29e', '#546570', '#0000ff', '#52d58d'],
-  highlightColors: ['rgb(99,151,247)', 'rgb(236,73,68)', 'rgb(82,180,156)', '#de9226', '#cfb2a8', '#797b7f'],
+  backgroundColor: '#ccc',
+  labelLineColor: '#ff0000',
+  colors: ['rgb(69,121,207)', 'rgb(196,73,68)', 'rgb(82,160,156)', '#ca8623', '#bda29e', '#546570', '#52d58d'],
+  highlightColors: ['rgb(99,151,247)', 'rgb(236,73,68)', 'rgb(82,180,156)', '#de9226', '#cfb2a8', '#797b7f', '#62e58d'],
   lineCap: 'round' || 'butt'
 };
 
@@ -161,9 +162,34 @@ export default class donutChartWithCanvas {
     ctx.stroke();
     ctx.closePath();
   }
+  /** 画一条连接 label 的折线, 返回折线末端的 x,y,angle */
+  public drawLineToLabel(startX: number, startY: number, angle: number) {
+    const DEFAULT_LENGTH = this.option.radius * 0.15
+    const [midX, midY] = [startX + DEFAULT_LENGTH * Math.sin(aToR(angle)), startY - DEFAULT_LENGTH * Math.cos(aToR(angle))]
+    const [endX, endY] = [midX + (angle > 180 ? -1 : 1) * DEFAULT_LENGTH, midY]
+    const { ctx } = this
+    ctx.save()
+    ctx.rotate(aToR(-ROTATE_ANGLE));
+    ctx.translate(-this.originX, -this.originY);
+    ctx.scale(1 / this.rate, 1 / this.rate);
+
+    ctx.beginPath()
+    ctx.lineWidth = 2
+    ctx.strokeStyle = this.option.labelLineColor
+    //debugger
+    ctx.moveTo(startX * this.rate, startY * this.rate)
+    ctx.lineTo(midX * this.rate, midY * this.rate)
+    ctx.lineTo(endX * this.rate, endY * this.rate)
+    //ctx.moveTo(300 * this.rate, 300 * this.rate)
+    //ctx.lineTo(100, 100)
+    ctx.stroke();
+    ctx.restore()
+    ctx.closePath()
+    return { x: endX, y: endY, angle }
+  }
   public render() {
     //先画一层灰色底
-    this.drawArc(0, 360, '#ccc');
+    this.drawArc(0, 360, this.option.backgroundColor);
     //绘制每个圆弧
     (this._arcArray || []).forEach((item, index) => {
       this.drawArc(
@@ -181,9 +207,10 @@ export default class donutChartWithCanvas {
       const midRadian = aToR(midAngle)
       const x = originX + line * Math.sin(midRadian)
       const y = originY - line * Math.cos(midRadian)
-      return { x, y, angle: angleNormalize(midAngle) }
+      return this.drawLineToLabel(x, y, angleNormalize(midAngle))
     })
   }
+
 }
 
 /** angleToRadian */

@@ -9,7 +9,13 @@ const App: React.FC = () => {
         <DonutChart
           width={600}
           height={600}
-          values={[0.4, 0.3, 0.2, 0.05, 0.03, 0.01, 0.0099, 0.0001]}
+          values={[0.4, 0.3, 0.2, 0.05, 0.03, 0.019, 0.001]} //{[0.8, 0.18, 0.02]}
+          labels={[1, 2, 3, 4, 5, 6, 7].map(x => (
+            <i className="test">{Array(10).fill(x)}</i>
+          ))}
+          lineCap="round"
+          radius={150}
+          lineWidth={20}
           tooltips={[
             <h1>I am Tooltip H1</h1>,
             <h2>Tooltip h2</h2>,

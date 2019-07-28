@@ -18,6 +18,8 @@ interface Props {
   tooltips?: ReactElement[];
   /** 圆弧从大到小显示的颜色, 默认值为蓝红绿 */
   colors?: string[];
+  backgroundColor?: string;
+  labelLineColor?: string;
   /** 圆弧连接处的样式, 默认值为圆角(round) */
   lineCap?: 'round' | 'butt';
 }
@@ -35,6 +37,8 @@ export default class DonutChart extends React.Component<Props> {
   };
   /** 鼠标 hover 在其上的圆环的序号 */
   private hoverIndex: number = -1;
+  private labels: Array<HTMLElement> = [];
+
   public get renderLabels() {
     return (this.props.labels || []).map((label, index) => (
       <div className="donut-chart-label" key={index}>
@@ -77,6 +81,8 @@ export default class DonutChart extends React.Component<Props> {
             <span>{self.props.values[hoverIndex] * 100 + '%'}</span> || self.renderTooltip,
             document.getElementById('donut-chart-tooltip-content')
           );
+          self.labels.forEach(label => label.classList.remove('active'));
+          self.labels[hoverIndex].classList.add('active');
         }
       } else {
         tooltipDiv.style.opacity = '0';
@@ -87,7 +93,7 @@ export default class DonutChart extends React.Component<Props> {
   }
   public setLabelPostion(positions: Array<{ x: number; y: number; angle: number }>) {
     console.log(positions);
-    const labels = document.querySelectorAll('.donut-chart-label');
+    const labels = (this.labels = Array.from(document.querySelectorAll('.donut-chart-label')));
     positions.forEach(({ x, y, angle }, index) => {
       if (labels[index]) {
         if (angle > 180) {
