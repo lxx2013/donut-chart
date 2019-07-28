@@ -1,3 +1,4 @@
+// tslint:disable: no-this-assignment
 const defaultOption = {
   originXpercent: 0.5,
   originYpercent: 0.5,
@@ -18,7 +19,7 @@ const START_ANGLE = -30; // 根据设计图上目测是从11点方向开始逆�
  * @description 默认圆心在正中间, 角度以12点钟方向为0度, 逆时针为增加度数
  * x轴指向圆心向右, y轴指向圆心向下
  */
-export default class donutChartWithCanvas {
+export default class DonutChartWithCanvas {
   public option: typeof defaultOption;
   public canvas: HTMLCanvasElement;
   public ctx: CanvasRenderingContext2D;
@@ -29,25 +30,25 @@ export default class donutChartWithCanvas {
   /** 存放圆弧绘制数据的数组 */
   private _arcArray: Array<{ startAngle: number; endAngle: number }> = [];
   private SPECIAL_ANGLE: number;
-  private originX: number; //圆心坐标
-  private originY: number; //圆心坐标
+  private originX: number; // 圆心坐标
+  private originY: number; // 圆心坐标
 
   constructor(canvasId: string, option: Partial<typeof defaultOption>) {
     const canvas = (this.canvas = document.getElementById(canvasId) as HTMLCanvasElement);
     const ctx = (this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D);
     this.option = defaultOption;
     Object.assign(this.option, option);
-    //下面设置 canvas 的相关属性
-    const { width, height } = canvas; //获取 canvas 的 attr 上指定的宽高(与 style 的宽高不同)
+    // 下面设置 canvas 的相关属性
+    const { width, height } = canvas; // 获取 canvas 的 attr 上指定的宽高(与 style 的宽高不同)
     this.rate = window.devicePixelRatio ? window.devicePixelRatio * 2 : 4;
     [canvas.style.width, canvas.style.height] = [width + 'px', height + 'px'];
     [canvas.width, canvas.height] = [width * this.rate, height * this.rate];
     ctx.scale(this.rate, this.rate);
-    //移动坐标系, 使得圆心在中间, 角度0从12点钟方向开始(逆时针)
+    // 移动坐标系, 使得圆心在中间, 角度0从12点钟方向开始(逆时针)
     ctx.translate(this.originX = this.option.originXpercent * width, this.originY = this.option.originYpercent * height);
     ctx.rotate(aToR(ROTATE_ANGLE));
     this.SPECIAL_ANGLE = 0;
-    //若颜色设置不恰当则打印警告
+    // 若颜色设置不恰当则打印警告
     const { values, colors, highlightColors } = this.option;
     if (values.length !== colors.length || values.length !== highlightColors.length) {
       console.warn('圆环图输入的数据数量和颜色数量不一致,请检查(默认渲染随机颜色)');
@@ -58,11 +59,11 @@ export default class donutChartWithCanvas {
     if (callback && typeof callback !== 'function') {
       throw new Error('[donutChartWithCanvas] init() 第一个参数必须是函数或 undefined!');
     }
-    //如果 lineCap 是 'butt' 则无须计算圆弧边缘圆角相切
+    // 如果 lineCap 是 'butt' 则无须计算圆弧边缘圆角相切
     if (this.option.lineCap === 'butt') {
       let _lastAngel = START_ANGLE;
       this.option.values.forEach((value, index) => {
-        let endAngle = _lastAngel - value * 360; //用减法来逆时针旋转
+        const endAngle = _lastAngel - value * 360; // 用减法来逆时针旋转
         this._arcArray[index] = {
           startAngle: _lastAngel,
           endAngle
@@ -80,12 +81,12 @@ export default class donutChartWithCanvas {
       const totalAngleNeedToCut = this.option.values.length * 2 * this.SPECIAL_ANGLE;
       const ArcsNeedToCut = this.option.values.filter(value => value * 360 > LIMIT_ANGLE);
       const totalValue = ArcsNeedToCut.reduce((a, b) => a + b);
-      //下面开始计算数据填充至 this._arcArray
+      // 下面开始计算数据填充至 this._arcArray
       let _lastAngel = START_ANGLE;
       this.option.values.forEach((value, index) => {
-        let endAngle = _lastAngel - value * 360; //用减法来逆时针旋转
+        let endAngle = _lastAngel - value * 360; // 用减法来逆时针旋转
         if (ArcsNeedToCut.includes(value)) {
-          endAngle = endAngle + (value / totalValue) * totalAngleNeedToCut; //按比例分配"削减量"
+          endAngle = endAngle + (value / totalValue) * totalAngleNeedToCut; // 按比例分配"削减量"
         }
         this._arcArray[index] = {
           startAngle: _lastAngel,
@@ -98,41 +99,41 @@ export default class donutChartWithCanvas {
     }
 
     console.log('_arcArray', this._arcArray);
-    //初始绘制
+    // 初始绘制
     this.render();
 
-    //暴露鼠标移动事件给外层
+    // 暴露鼠标移动事件给外层
     const { option } = this;
     dom.addEventListener(
       'mousemove',
       (e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        let x = e.layerX - dom.offsetWidth / 2;
-        let y = e.layerY - dom.offsetHeight / 2;
-        let x2 = x * x;
-        let y2 = y * y;
+        const x = e.layerX - dom.offsetWidth / 2;
+        const y = e.layerY - dom.offsetHeight / 2;
+        const x2 = x * x;
+        const y2 = y * y;
         const isBiggerThanInner = Math.sqrt(x2 + y2) > option.radius - option.lineWidth / 2;
         const isSmallerThanOuter = Math.sqrt(x2 + y2) < option.radius + option.lineWidth / 2;
         // 判断是 hover 在空白上还是 hover 在圆弧上
         if (!isBiggerThanInner || !isSmallerThanOuter) {
-          //console.log('我还是纯洁的白色', e.offsetX, e.offsetY);
+          // console.log('我还是纯洁的白色', e.offsetX, e.offsetY);
           if (this.hoverIndex !== -1) {
             this.hoverIndex = -1;
             this.render();
           }
           callback(e.layerX, e.layerY, -1);
         } else {
-          var angle = Math.atan2(x, -y) / (Math.PI / 180); //这个 angle 角度表示以12点方向为0度, 顺时针的角度, 再加修正值
+          let angle = Math.atan2(x, -y) / (Math.PI / 180); // 这个 angle 角度表示以12点方向为0度, 顺时针的角度, 再加修正值
           angle = angle > 0 ? angle : 360 + angle;
-          //console.log('啊我趴在圆弧上', x, y, angle);
-          //计算 hoverIndex 下面用 for 循环是为了能尽早 break
+          // console.log('啊我趴在圆弧上', x, y, angle);
+          // 计算 hoverIndex 下面用 for 循环是为了能尽早 break
           for (let i = 0; i < this._arcArray.length; i++) {
             const arc = this._arcArray[i];
             if (isBetween(angle, arc.startAngle, arc.endAngle, this.SPECIAL_ANGLE)) {
-              //发现 angle < endAngle 就可以确定鼠标浮动的 index 了
+              // 发现 angle < endAngle 就可以确定鼠标浮动的 index 了
               if (i !== this.hoverIndex) {
-                //如果 hoverIndex 需要改变,则执行 render
+                // 如果 hoverIndex 需要改变,则执行 render
                 this.hoverIndex = i;
                 this.render();
               }
@@ -176,21 +177,18 @@ export default class donutChartWithCanvas {
     ctx.beginPath()
     ctx.lineWidth = 2
     ctx.strokeStyle = this.option.labelLineColor
-    //debugger
     ctx.moveTo(startX * this.rate, startY * this.rate)
     ctx.lineTo(midX * this.rate, midY * this.rate)
     ctx.lineTo(endX * this.rate, endY * this.rate)
-    //ctx.moveTo(300 * this.rate, 300 * this.rate)
-    //ctx.lineTo(100, 100)
     ctx.stroke();
     ctx.restore()
     ctx.closePath()
     return { x: endX, y: endY, angle }
   }
   public render() {
-    //先画一层灰色底
+    // 先画一层灰色底
     this.drawArc(0, 360, this.option.backgroundColor);
-    //绘制每个圆弧
+    // 绘制每个圆弧
     (this._arcArray || []).forEach((item, index) => {
       this.drawArc(
         item.startAngle,
