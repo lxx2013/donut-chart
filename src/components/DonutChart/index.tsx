@@ -8,6 +8,8 @@ interface Props {
   width: number;
   /** canvas attr 高度, 决定画布高度 */
   height: number;
+  radius?: number;
+  lineWidth?: number;
   /** 每段圆弧对应的百分比(小数), 默认值[0.33,0,33,0.33] */
   values: number[];
   /** 每段圆弧对应的常驻 label */
@@ -28,7 +30,6 @@ export default class DonutChart extends React.Component<Props> {
     width: 600,
     height: 600,
     values: [0.33, 0.33, 0.33],
-    colors: ['#4f83f7', '#ec4944', '#52b49c'],
     lineCap: 'round',
     labels: Object.keys(Array.from({ length: 8 })).map(x => 'l' + x)
   };
@@ -59,10 +60,7 @@ export default class DonutChart extends React.Component<Props> {
     );
   }
   public componentDidMount() {
-    var donut = new donutChartWithCanvas('donut-chart-canvas', {
-      values: this.props.values,
-      lineCap: this.props.lineCap
-    });
+    var donut = new donutChartWithCanvas('donut-chart-canvas', this.props);
     let self = this;
     const tooltipDiv = document.getElementById('donut-chart-tooltip') as HTMLElement;
     donut.init(document.getElementById('donut-chart-wrapper') as HTMLElement, function(

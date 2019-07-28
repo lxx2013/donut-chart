@@ -177,11 +177,11 @@ export default class donutChartWithCanvas {
     const { option, originX, originY } = this
     const line = option.radius + option.lineWidth / 2
     return this._arcArray.map(item => {
-      const midAngle = (angleNormalize(item.startAngle) + angleNormalize(item.endAngle)) / 2
+      const midAngle = (item.startAngle + item.endAngle) / 2
       const midRadian = aToR(midAngle)
       const x = originX + line * Math.sin(midRadian)
       const y = originY - line * Math.cos(midRadian)
-      return { x, y, angle: midAngle }
+      return { x, y, angle: angleNormalize(midAngle) }
     })
   }
 }
