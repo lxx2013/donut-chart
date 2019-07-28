@@ -166,7 +166,7 @@ export default class donutChartWithCanvas {
   public drawLineToLabel(startX: number, startY: number, angle: number) {
     const DEFAULT_LENGTH = this.option.radius * 0.15
     const [midX, midY] = [startX + DEFAULT_LENGTH * Math.sin(aToR(angle)), startY - DEFAULT_LENGTH * Math.cos(aToR(angle))]
-    const [endX, endY] = [midX + (angle > 180 ? -1 : 1) * DEFAULT_LENGTH, midY]
+    const [endX, endY] = [midX + (angle > 180 ? -1 : 1) * 2 * DEFAULT_LENGTH, midY]
     const { ctx } = this
     ctx.save()
     ctx.rotate(aToR(-ROTATE_ANGLE));
