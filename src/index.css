@@ -1,13 +1,153 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+.donut-chart-wrapper {
+  position: relative;
+  user-select: none;
+}
+.donut-chart-canvas,
+.donut-chart-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+.donut-chart-canvas {
+  z-index: 0;
+}
+.donut-chart-wrapper .donut-chart-label {
+  position: absolute;
+  z-index: 0;
+}
+.donut-chart-wrapper .donut-chart-label:nth-of-type(1) {
+  left: 0;
+  bottom: 0;
+}
+.donut-chart-wrapper .donut-chart-label:nth-of-type(2) {
+  right: 0;
+  top: 0;
+}
+.donut-chart-wrapper .donut-chart-label:nth-of-type(3) {
+  top: 0;
+  left: 0;
+}
+.donut-chart-wrapper .donut-chart-label.active {
+  z-index: 1;
+}
+.donut-chart-tooltip {
+  transition: opacity 0.5s ease-in-out;
+}
+.donut-chart-tooltip.opacity0 {
+  opacity: 0;
+}
+.donut-chart-tooltip.active.opacity0:hover {
+  transition-property: none;
+  opacity: 1;
+}
+
+.bee-donut-chart {
+  font-weight: 500;
+  position: relative;
+  display: flex;
+  margin-left: 16px;
+  justify-content: flex-start;
+  margin-top: -6px;
+}
+.bee-donut-chart .donut-chart-tooltip-content {
+  min-width: 270px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding: 16px 20px;
+  border-radius: 4px;
+  box-shadow: 0 6px 24px 0 rgba(31, 35, 41, 0.12);
+  background-color: #ffffff;
+}
+.bee-donut-chart .donut-chart-tooltip-content .tooltip-title {
+  height: 22px;
+  font-size: 14px;
+  line-height: 1.57;
+  color: #1f2329;
+}
+.bee-donut-chart .donut-chart-tooltip-content .tooltip-row {
+  margin-top: 20px;
+}
+.bee-donut-chart .donut-chart-tooltip-content .tooltip-row p {
+  min-height: 22px;
+  font-size: 14px;
+  line-height: 1.57;
+  color: #646a73;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.bee-donut-chart .donut-chart-tooltip-content .tooltip-row p span.tooltip-wrap {
+  display: block;
+}
+.bee-donut-chart .donut-chart-tooltip-content .tooltip-row i {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+}
+.bee-donut-chart .donut-chart-tooltip-content .tooltip-row i:nth-of-type(2) {
+  margin-top: -8px;
+}
+.bee-donut-chart .donut-chart-label-content {
+  width: 90px;
+  height: 64px;
+  cursor: pointer;
+}
+.bee-donut-chart .donut-chart-label-content h2 {
+  height: 42px;
+  line-height: 42px;
+  font-size: 30px;
+  margin: 0;
+}
+.bee-donut-chart .donut-chart-label-content p {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+.bee-donut-chart .donut-chart-label-content p strong {
+  font-size: 16px;
+  line-height: 22px;
+  white-space: nowrap;
+}
+.bee-donut-chart .donut-chart-label-content p strong + span {
+  display: inline-block;
+  white-space: nowrap;
+  height: 22px;
+  padding: 0 1em;
+  margin-left: 8px;
+  line-height: 22px;
+  border-radius: 11px;
+  color: #fff;
+  text-align: center;
+  font-size: 12px;
+}
+.bee-donut-chart .donut-chart-center-board {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #1f2329;
+}
+.bee-donut-chart .donut-chart-center-board .number {
+  height: 42px;
+  font-family: PingFangSC;
+  font-size: 30px;
+  font-weight: 500;
+}
+.bee-donut-chart .donut-chart-center-board .title {
+  height: 20px;
+  line-height: 20px;
+  font-family: PingFangSC;
+  font-size: 14px;
 }
