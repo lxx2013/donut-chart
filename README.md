@@ -4,7 +4,7 @@
 - [x] 固定 label , 通过旋转环图来避免错位
 
 ## 环图第一版需求(deprecate)
-![环图第一版需求(deprecate)](https://i.setsuna.wang/环图第一版需求(deprecate).gif)
+[https://i.setsuna.wang/环图第一版需求(deprecate).gif](https://i.setsuna.wang/环图第一版需求(deprecate).gif)
 
 ## 遍历数据
 ![2019-08-17 18.32.17.gif](https://i.loli.net/2019/08/17/gxtZjq1Goma2pQS.gif)
