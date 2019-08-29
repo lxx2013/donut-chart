@@ -13,4 +13,4 @@
 ![](https://i.setsuna.wang/antd_的_tab_宽度_bug_.gif)
 
 ## my_tab
-![](https://i.setsuna.wang/我的项目的tab.gif)
+![](https://i.setsuna.wang/55BA0679-EAD2-4A65-B5B7-BFFC6610299C.gif)
