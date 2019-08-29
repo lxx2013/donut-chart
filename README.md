@@ -10,7 +10,7 @@
 ![2019-08-17 18.32.17.gif](https://i.loli.net/2019/08/17/gxtZjq1Goma2pQS.gif)
 
 ## antd_tab
-![](https://i.setsuna.wang/antd_的_tab_宽度_bug_.gif)
+![](https://i.setsuna.wang/55BA0679-EAD2-4A65-B5B7-BFFC6610299C.gif)
 
 ## my_tab
-![](https://i.setsuna.wang/55BA0679-EAD2-4A65-B5B7-BFFC6610299C.gif)
+![](https://i.setsuna.wang/我的项目的tab.gif)
